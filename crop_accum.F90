@@ -205,22 +205,25 @@ contains
 
     !EL...sib(sibpt)%diag%ndf_opt= no. of days with avg. temperature above
     !EL...13.9C (57F) i.e. avg warm enough temp for considering planting
-    if (tempc < 13.9) then
+    if (tempc < 13.9) then  !要是没有连续7天温度大于等于13.9怎么办 ; 
        sib(sibpt)%diag%ndf_opt = 0
     else
        sib(sibpt)%diag%ndf_opt = sib(sibpt)%diag%ndf_opt + 1
     endif
 
-    if (sib(sibpt)%diag%ndf_opt == 7 .and. &
-        sib(sibpt)%diag%pd_annual == 0) then
-       sib(sibpt)%diag%pd = time%doy
-       sib(sibpt)%diag%pd_annual = 1
+    if (sib(sibpt)%diag%ndf_opt == 7 .and. &    ! ndf_opt    ! the number of consecutive days with the optimum temperature for planting
+        sib(sibpt)%diag%pd_annual == 0) then    ! pd_annual  !switch for limiting crops to one season per year  一年一季？
+       sib(sibpt)%diag%pd = time%doy            ! doy        ! current day of current year
+       sib(sibpt)%diag%pd_annual = 1   
     endif
 
+  !planting date was readjusted if the temperature dropped below a certain
+  !threshold after the initial 7-day period?
+  
     if (sib(sibpt)%diag%pd > 0 .and. &
-        time%doy >= sib(sibpt)%diag%pd + 1 .and. &
-        time%doy <= sib(sibpt)%diag%pd + 7 .and. &
-        tempc < 11.67) then
+        time%doy >= sib(sibpt)%diag%pd + 1 .and. &   !pd         ! planting date
+        time%doy <= sib(sibpt)%diag%pd + 7 .and. &   !time%doy   !当前日期是否在播种后1天到7天内，即1周内
+        tempc < 11.67) then                          !11.67这个值怎么来的
 
        sib(sibpt)%diag%gdd = 0.0
     endif
@@ -229,17 +232,19 @@ contains
     !Calculate growing degree days
     !-----------------------------
 
-    !EL.. emergence at GDD=100.0
-    !EL.. sib(sibpt)%diag%nd_emerg= no. of days since emergence
+    !EL.. emergence at GDD=100.0  积温达到100时开始发芽
+    !EL.. sib(sibpt)%diag%nd_emerg= no. of days since emergence 播种到发芽需要的天数
 
     if (sib(sibpt)%diag%gdd < 100.0) then
-       sib(sibpt)%diag%nd_emerg = 0
+       sib(sibpt)%diag%nd_emerg = 0  !nd_emerg   ! no. of days since emergence (including the day of emergence)
+     
     else
        sib(sibpt)%diag%nd_emerg = sib(sibpt)%diag%nd_emerg + 1
     endif
 
-    if (sib(sibpt)%diag%nd_emerg == 1) then
-       sib(sibpt)%diag%emerg_d = time%doy
+
+    if (sib(sibpt)%diag%nd_emerg == 1) then  !  为什么要单独拿出来
+       sib(sibpt)%diag%emerg_d = time%doy    !   emerg_d    ! day of emergence
     endif
 
     !EL...added to avoid gdd calculation before real planting date, 
