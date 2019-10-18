@@ -247,9 +247,9 @@ contains
        sib(sibpt)%diag%emerg_d = time%doy    !   emerg_d    ! day of emergence
     endif
 
-    !EL...added to avoid gdd calculation before real planting date, 
-    !EL...since pd is printed out as 0 before the real planting 
-    !EL...date based on the above ndf_opt criterion
+    !EL...added to avoid gdd calculation before real planting date,  在哪里调用了这个子程序，积温和温度的关系，连续7天气温高于某个值则开始播种，
+    !EL...since pd is printed out as 0 before the real planting      如果气温一直不满足的话，就拿积温来确定，也就是积温和气温是同时进行计算的， 
+    !EL...date based on the above ndf_opt criterion                  如果播种日期是4.1，不能让积温算出来是3.30播种
     !EL...Calculation of GDDs occurs between 10C (50F) and 30C (86F)
 
     if (sib(sibpt)%diag%pd > 0          .and. &
